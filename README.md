@@ -2,11 +2,11 @@
 
 Desktop Minecraft Java seed map. Pan, zoom, biomes, structures. Companion Fabric mod can drop those marks into the running game.
 
-Author: NullForge
+Author: Exempler201
 
 ## App
 
-Windows: download `SeedGrid-1.1.1-win.exe` from [Releases](https://github.com/offjext/SeedGrid/releases). Node and Electron are inside that file. Double-click, no install.
+Windows: download `SeedGrid-1.0.0-win.exe` from [Releases](https://github.com/offjext/SeedGrid/releases). Node and Electron are inside that file. Double-click, no install.
 
 From source (Node.js 18+):
 

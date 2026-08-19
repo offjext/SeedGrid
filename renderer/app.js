@@ -36,12 +36,13 @@ const state = {
   biomeBusy: false,
   biomeAgain: false,
   structBusy: false,
-  structAgain: false
+  structAgain: false,
+  iconSize: 18
 };
 
 const biomeTiles = new Map();
-const TILE_CELLS = 128;
-const TILE_LIMIT = 80;
+const TILE_CELLS = 64;
+const TILE_LIMIT = 120;
 let popoverMarker = null;
 let popoverPx = 0;
 let popoverPy = 0;
@@ -126,7 +127,8 @@ function saveSettings() {
       gameMarks: state.gameMarks,
       cx: state.cx,
       cz: state.cz,
-      viewW: state.viewW
+      viewW: state.viewW,
+      iconSize: state.iconSize
     }));
   } catch (e) {}
 }
@@ -148,6 +150,9 @@ function restoreSettings() {
   if (typeof saved.cx === 'number' && Number.isFinite(saved.cx)) state.cx = Math.round(saved.cx);
   if (typeof saved.cz === 'number' && Number.isFinite(saved.cz)) state.cz = Math.round(saved.cz);
   if (typeof saved.viewW === 'number' && Number.isFinite(saved.viewW)) state.viewW = clampViewWidth(saved.viewW);
+  if (typeof saved.iconSize === 'number' && Number.isFinite(saved.iconSize)) {
+    state.iconSize = Math.max(12, Math.min(36, Math.round(saved.iconSize)));
+  }
   if (saved.features && typeof saved.features === 'object') {
     for (const key of Object.keys(state.features)) {
       if (typeof saved.features[key] === 'boolean') state.features[key] = saved.features[key];
@@ -188,6 +193,7 @@ function syncFormFromState() {
   els.goZ.value = String(state.cz);
   els.terrainCb.checked = state.terrain;
   els.gridCb.checked = state.grid;
+  if (els.iconSize) els.iconSize.value = String(state.iconSize);
 }
 
 function defaultFeatures(structs) {
@@ -361,12 +367,18 @@ function missingBiomeBox(tight) {
     }
   }
   if (miss === 0) return null;
-  const cell = currentScale();
-  const maxBlocks = 1024 * cell;
-  let reqW = maxX - minX;
-  let reqH = maxZ - minZ;
-  if (reqW > maxBlocks || reqH > maxBlocks) return biomeBounds(tight);
-  return { ox: minX, oz: minZ, bw: reqW, bh: reqH };
+  const ctx = Math.floor(state.cx / ts);
+  const ctz = Math.floor(state.cz / ts);
+  if (!biomeTiles.has(tileKey(ctx, ctz))) {
+    return { ox: ctx * ts, oz: ctz * ts, bw: ts, bh: ts };
+  }
+  for (let tz = tz0; tz <= tz1; tz++) {
+    for (let tx = tx0; tx <= tx1; tx++) {
+      if (biomeTiles.has(tileKey(tx, tz))) continue;
+      return { ox: tx * ts, oz: tz * ts, bw: ts, bh: ts };
+    }
+  }
+  return null;
 }
 
 function visibleBounds() {
@@ -395,15 +407,6 @@ function biomeBounds(tight) {
 
 function needFreshBiomes() {
   if (state.features.biomes === false) return false;
-  if (state.bmp && state.bmpScale === currentScale()) {
-    const visible = visibleBounds();
-    if (
-      visible.ox >= state.bmpOx &&
-      visible.oz >= state.bmpOz &&
-      visible.ox + visible.bw <= state.bmpOx + state.bmpBw &&
-      visible.oz + visible.bh <= state.bmpOz + state.bmpBh
-    ) return false;
-  }
   return missingBiomeBox(true) != null;
 }
 
@@ -440,15 +443,6 @@ function drawBiome() {
       ctx.drawImage(tile.canvas, 0, 0, tile.canvas.width, tile.canvas.height, p0.x, p0.y, p1.x - p0.x, p1.y - p0.y);
     }
   }
-
-  if (!state.bmp) return;
-  const p0 = worldToCanvas(state.bmpOx, state.bmpOz);
-  const p1 = worldToCanvas(state.bmpOx + state.bmpBw, state.bmpOz + state.bmpBh);
-  ctx.drawImage(
-    state.bmp,
-    0, 0, state.bmp.width, state.bmp.height,
-    p0.x, p0.y, p1.x - p0.x, p1.y - p0.y
-  );
 }
 
 function drawGrid() {
@@ -513,7 +507,7 @@ function markerInDim(marker) {
 
 function drawStructures() {
   const { w, h } = mapSize();
-  const size = state.viewW > 20000 ? 10 : state.viewW > 8000 ? 14 : 18;
+  const size = state.iconSize;
   hitList = [];
   const markers = state.structMarkers;
   const maxDraw = state.viewW > 40000 ? 600 : 1200;
@@ -523,7 +517,7 @@ function drawStructures() {
     if (marker.kind === 'box') continue;
     if (!markerInDim(marker)) continue;
     const p = worldToCanvas(marker.x, marker.z);
-    if (p.x < -16 || p.y < -16 || p.x > w + 16 || p.y > h + 16) continue;
+    if (p.x < -size || p.y < -size || p.x > w + size || p.y > h + size) continue;
     if (drawn >= maxDraw && marker.key !== 'spawn' && marker.key !== 'stronghold') continue;
     drawn += 1;
     const x = Math.round(p.x);
@@ -552,7 +546,10 @@ function renderCustomMarker() {
   btn.className = 'marker-icon';
   btn.style.left = `${Math.round(p.x)}px`;
   btn.style.top = `${Math.round(p.y)}px`;
-  btn.title = `${marker.name} X: ${marker.x} Z: ${marker.z}`;
+  btn.style.width = `${state.iconSize}px`;
+  btn.style.height = `${state.iconSize}px`;
+  btn.style.marginLeft = `${-state.iconSize / 2}px`;
+  btn.style.marginTop = `${-state.iconSize / 2}px`;
   btn.innerHTML = window.FEATURE_ICONS.custom;
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -563,7 +560,7 @@ function renderCustomMarker() {
 
 function markerAt(px, py) {
   let best = null;
-  let bestD = 18;
+  let bestD = Math.max(14, state.iconSize);
   for (let i = 0; i < hitList.length; i++) {
     const h = hitList[i];
     const d = Math.abs(h.x - px) + Math.abs(h.y - py);
@@ -1099,6 +1096,11 @@ function bindEvents() {
     scheduleSave();
     render();
   });
+  els.iconSize.addEventListener('input', () => {
+    state.iconSize = Math.max(12, Math.min(36, Number(els.iconSize.value) || 18));
+    scheduleSave();
+    render();
+  });
 
   $('shareBtn').onclick = async () => {
     await window.seedgrid.copy(`Seed: ${state.seed}\nVersion: ${els.version.value}\nX: ${state.cx} Z: ${state.cz}`);
@@ -1222,6 +1224,7 @@ async function boot() {
   els.ySelect = $('ySelect');
   els.terrainCb = $('terrainToggle');
   els.gridCb = $('gridToggle');
+  els.iconSize = $('iconSize');
   els.popover = $('popover');
   els.markerLayer = $('markerLayer');
   els.note = $('mapNote');

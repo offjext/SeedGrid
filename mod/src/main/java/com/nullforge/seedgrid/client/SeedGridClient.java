@@ -1,5 +1,6 @@
 package com.nullforge.seedgrid.client;
 
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.nullforge.seedgrid.SeedGridMod;
 import net.fabricmc.api.ClientModInitializer;
@@ -29,6 +30,7 @@ public class SeedGridClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		WaypointStore.loadFromDisk();
+		SeedGridConfig.load();
 		WaypointBridge.start();
 		WaypointRenderer.register();
 		WaypointHud.register();
@@ -79,6 +81,17 @@ public class SeedGridClient implements ClientModInitializer {
 					ctx.getSource().sendFeedback(Component.literal("Cleared SeedGrid marks"));
 					return 1;
 				}))
+				.then(ClientCommands.literal("size")
+					.executes(ctx -> {
+						ctx.getSource().sendFeedback(Component.literal("Mark size: " + SeedGridConfig.markScale()));
+						return 1;
+					})
+					.then(ClientCommands.argument("value", FloatArgumentType.floatArg(0.5f, 3f)).executes(ctx -> {
+						SeedGridConfig.setScale(FloatArgumentType.getFloat(ctx, "value"));
+						ctx.getSource().sendFeedback(Component.literal("Mark size: " + SeedGridConfig.markScale()));
+						return 1;
+					}))
+				)
 			);
 			//?} else {
 			/*dispatcher.register(ClientCommandManager.literal("seedgrid")
@@ -92,6 +105,17 @@ public class SeedGridClient implements ClientModInitializer {
 					ctx.getSource().sendFeedback(Component.literal("Cleared SeedGrid marks"));
 					return 1;
 				}))
+				.then(ClientCommandManager.literal("size")
+					.executes(ctx -> {
+						ctx.getSource().sendFeedback(Component.literal("Mark size: " + SeedGridConfig.markScale()));
+						return 1;
+					})
+					.then(ClientCommandManager.argument("value", FloatArgumentType.floatArg(0.5f, 3f)).executes(ctx -> {
+						SeedGridConfig.setScale(FloatArgumentType.getFloat(ctx, "value"));
+						ctx.getSource().sendFeedback(Component.literal("Mark size: " + SeedGridConfig.markScale()));
+						return 1;
+					}))
+				)
 			);
 			*///?}
 		});

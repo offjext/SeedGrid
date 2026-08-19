@@ -34,7 +34,7 @@ public class WaypointScreen extends Screen {
 
 		int top = 32;
 		int rowH = 22;
-		int max = Math.max(1, (this.height - 70) / rowH);
+		int max = Math.max(1, (this.height - 90) / rowH);
 		int shown = 0;
 		for (Waypoint w : list) {
 			if (shown >= max) break;
@@ -57,6 +57,19 @@ public class WaypointScreen extends Screen {
 				.build());
 			shown += 1;
 		}
+
+		this.addRenderableWidget(Button.builder(Component.literal("-"), btn -> {
+			SeedGridConfig.setScale(SeedGridConfig.markScale() - 0.25f);
+			this.rebuildWidgets();
+		}).bounds(this.width / 2 - 140, this.height - 52, 20, 20).build());
+		this.addRenderableWidget(Button.builder(
+			Component.literal("Size " + Math.round(SeedGridConfig.markScale() * 100) + "%"),
+			btn -> {}
+		).bounds(this.width / 2 - 116, this.height - 52, 100, 20).build());
+		this.addRenderableWidget(Button.builder(Component.literal("+"), btn -> {
+			SeedGridConfig.setScale(SeedGridConfig.markScale() + 0.25f);
+			this.rebuildWidgets();
+		}).bounds(this.width / 2 - 12, this.height - 52, 20, 20).build());
 
 		this.addRenderableWidget(Button.builder(Component.literal("Remove all"), btn -> {
 			WaypointStore.clear();

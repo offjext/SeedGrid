@@ -3,9 +3,9 @@
 	"id": "${id}",
 	"version": "${version}",
 	"name": "${name}",
-	"description": "Shows SeedGrid map marks in the world: beams, distance, and a mark list.",
+	"description": "Shows SeedGrid map marks in the world: a pin, name, distance, and a mark list.",
 	"authors": [
-		"NullForge"
+		"Exempler201"
 	],
 	"contact": {
 		"sources": "https://github.com/offjext/seedgrid-marks"

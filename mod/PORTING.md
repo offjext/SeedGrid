@@ -1,6 +1,6 @@
 # Porting SeedGrid Marks
 
-This project uses Stonecutter (https://stonecutter.kikugie.dev) plus loom-back-compat. That is the usual Fabric way to keep one `src/` tree and emit a jar per Minecraft version.
+This project uses **Stonecutter** (https://stonecutter.kikugie.dev) plus loom-back-compat. That library keeps one `src/` tree and emits a jar per Minecraft version. Version-specific Minecraft APIs live in `ClientCompat` and `//? if` branches. HUD marks, size, HTTP, and the json file are the same on every version.
 
 ## Add a version
 

@@ -71,6 +71,8 @@ function ensureVersion(vkey) {
   if (currentVersionId !== mcId) {
     m._init_generator_flags(mcId, 0);
     currentVersionId = mcId;
+    currentSeedStr = null;
+    currentDim = null;
   }
   return ver;
 }
@@ -104,12 +106,9 @@ function queryBiomes(p) {
   const bw = Math.max(cell, Math.round(Number(p.bw)));
   const bh = Math.max(cell, Math.round(Number(p.bh)));
 
-  const needSeed = p.seed !== currentSeedStr || dim !== currentDim;
-  if (needSeed) {
-    doSetSeed(dim, seedValue);
-    currentSeedStr = p.seed;
-    currentDim = dim;
-  }
+  doSetSeed(dim, seedValue);
+  currentSeedStr = p.seed;
+  currentDim = dim;
 
   const x0 = Math.floor(ox / cell);
   const z0 = Math.floor(oz / cell);
@@ -301,12 +300,9 @@ function queryPointInfo(p) {
   const z = Math.round(Number(p.z || 0));
   const yBlock = dim === 1 ? 64 : dim === -1 ? 32 : Number(p.y ?? 64);
 
-  const needSeed = p.seed !== currentSeedStr || dim !== currentDim;
-  if (needSeed) {
-    doSetSeed(dim, seedValue);
-    currentSeedStr = p.seed;
-    currentDim = dim;
-  }
+  doSetSeed(dim, seedValue);
+  currentSeedStr = p.seed;
+  currentDim = dim;
 
   const id = m._get_biome(x, yBlock, z);
   return {

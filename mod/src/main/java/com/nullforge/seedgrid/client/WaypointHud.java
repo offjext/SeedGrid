@@ -72,15 +72,20 @@ public final class WaypointHud {
 		int rgb = 0xFF000000 | mark.rgb;
 		int x = mark.x;
 		int y = mark.y;
-		graphics.fill(x - 6, y - 16, x + 6, y - 4, 0xFF101010);
-		graphics.fill(x - 5, y - 15, x + 5, y - 5, rgb);
-		graphics.fill(x - 2, y - 4, x + 2, y + 2, 0xFF101010);
-		graphics.fill(x - 1, y - 4, x + 1, y + 1, rgb);
-		graphics.text(mc.font, mark.letter, x - 3, y - 14, 0xFFFFFFFF, true);
+		float s = SeedGridConfig.markScale();
+		int half = Math.max(4, Math.round(6 * s));
+		int head = Math.max(8, Math.round(12 * s));
+		int stem = Math.max(1, Math.round(2 * s));
+		graphics.fill(x - half - 1, y - head - 1, x + half + 1, y - 3, 0xFF101010);
+		graphics.fill(x - half, y - head, x + half, y - 4, rgb);
+		graphics.fill(x - stem - 1, y - 4, x + stem + 1, y + stem + 2, 0xFF101010);
+		graphics.fill(x - stem, y - 4, x + stem, y + stem + 1, rgb);
+		graphics.text(mc.font, mark.letter, x - 3, y - head + 1, 0xFFFFFFFF, true);
 		int tw = mc.font.width(mark.title);
-		graphics.fill(x + 8, y - 16, x + 12 + tw, y - 5, 0x99000000);
-		graphics.text(mc.font, mark.title, x + 10, y - 15, 0xFFFFFFFF, true);
-		graphics.text(mc.font, mark.meters, x + 10, y - 4, 0xFFD0D0D0, true);
+		int tx = x + half + 3;
+		graphics.fill(tx - 2, y - head - 1, tx + 4 + tw, y - 4, 0x99000000);
+		graphics.text(mc.font, mark.title, tx, y - head, 0xFFFFFFFF, true);
+		graphics.text(mc.font, mark.meters, tx, y - 4, 0xFFD0D0D0, true);
 	}
 	//?} else if >=1.21.6 {
 	/*private static void extract(GuiGraphics graphics, DeltaTracker tickCounter) {
@@ -112,15 +117,20 @@ public final class WaypointHud {
 		int rgb = 0xFF000000 | mark.rgb;
 		int x = mark.x;
 		int y = mark.y;
-		graphics.fill(x - 6, y - 16, x + 6, y - 4, 0xFF101010);
-		graphics.fill(x - 5, y - 15, x + 5, y - 5, rgb);
-		graphics.fill(x - 2, y - 4, x + 2, y + 2, 0xFF101010);
-		graphics.fill(x - 1, y - 4, x + 1, y + 1, rgb);
-		graphics.drawString(mc.font, mark.letter, x - 3, y - 14, 0xFFFFFFFF, true);
+		float s = SeedGridConfig.markScale();
+		int half = Math.max(4, Math.round(6 * s));
+		int head = Math.max(8, Math.round(12 * s));
+		int stem = Math.max(1, Math.round(2 * s));
+		graphics.fill(x - half - 1, y - head - 1, x + half + 1, y - 3, 0xFF101010);
+		graphics.fill(x - half, y - head, x + half, y - 4, rgb);
+		graphics.fill(x - stem - 1, y - 4, x + stem + 1, y + stem + 2, 0xFF101010);
+		graphics.fill(x - stem, y - 4, x + stem, y + stem + 1, rgb);
+		graphics.drawString(mc.font, mark.letter, x - 3, y - head + 1, 0xFFFFFFFF, true);
 		int tw = mc.font.width(mark.title);
-		graphics.fill(x + 8, y - 16, x + 12 + tw, y - 5, 0x99000000);
-		graphics.drawString(mc.font, mark.title, x + 10, y - 15, 0xFFFFFFFF, true);
-		graphics.drawString(mc.font, mark.meters, x + 10, y - 4, 0xFFD0D0D0, true);
+		int tx = x + half + 3;
+		graphics.fill(tx - 2, y - head - 1, tx + 4 + tw, y - 4, 0x99000000);
+		graphics.drawString(mc.font, mark.title, tx, y - head, 0xFFFFFFFF, true);
+		graphics.drawString(mc.font, mark.meters, tx, y - 4, 0xFFD0D0D0, true);
 	}
 	*///?} else {
 	/*private static void draw(Minecraft mc, GuiGraphics graphics) {
@@ -143,15 +153,20 @@ public final class WaypointHud {
 			int rgb = 0xFF000000 | mark.rgb;
 			int x = mark.x;
 			int y = mark.y;
-			graphics.fill(x - 6, y - 16, x + 6, y - 4, 0xFF101010);
-			graphics.fill(x - 5, y - 15, x + 5, y - 5, rgb);
-			graphics.fill(x - 2, y - 4, x + 2, y + 2, 0xFF101010);
-			graphics.fill(x - 1, y - 4, x + 1, y + 1, rgb);
-			graphics.drawString(mc.font, mark.letter, x - 3, y - 14, 0xFFFFFFFF, true);
+			float s = SeedGridConfig.markScale();
+			int half = Math.max(4, Math.round(6 * s));
+			int head = Math.max(8, Math.round(12 * s));
+			int stem = Math.max(1, Math.round(2 * s));
+			graphics.fill(x - half - 1, y - head - 1, x + half + 1, y - 3, 0xFF101010);
+			graphics.fill(x - half, y - head, x + half, y - 4, rgb);
+			graphics.fill(x - stem - 1, y - 4, x + stem + 1, y + stem + 2, 0xFF101010);
+			graphics.fill(x - stem, y - 4, x + stem, y + stem + 1, rgb);
+			graphics.drawString(mc.font, mark.letter, x - 3, y - head + 1, 0xFFFFFFFF, true);
 			int tw = mc.font.width(mark.title);
-			graphics.fill(x + 8, y - 16, x + 12 + tw, y - 5, 0x99000000);
-			graphics.drawString(mc.font, mark.title, x + 10, y - 15, 0xFFFFFFFF, true);
-			graphics.drawString(mc.font, mark.meters, x + 10, y - 4, 0xFFD0D0D0, true);
+			int tx = x + half + 3;
+			graphics.fill(tx - 2, y - head - 1, tx + 4 + tw, y - 4, 0x99000000);
+			graphics.drawString(mc.font, mark.title, tx, y - head, 0xFFFFFFFF, true);
+			graphics.drawString(mc.font, mark.meters, tx, y - 4, 0xFFD0D0D0, true);
 		}
 	}
 	*///?}

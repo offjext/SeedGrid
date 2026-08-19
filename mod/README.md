@@ -8,10 +8,10 @@ Built with **Stonecutter** so one codebase makes jars for several Minecraft vers
 
 | Minecraft | Jar name | Beams in world |
 | --- | --- | --- |
-| 26.2 | seedgrid-1.1.1+26.2.jar | yes |
-| 26.1 | seedgrid-1.1.1+26.1.jar | HUD only |
-| 1.21.11 | seedgrid-1.1.1+1.21.11.jar | HUD only |
-| 1.21.1 | seedgrid-1.1.1+1.21.1.jar | HUD only |
+| 26.2 | seedgrid-1.0.0+26.2.jar | yes |
+| 26.1 | seedgrid-1.0.0+26.1.jar | HUD only |
+| 1.21.11 | seedgrid-1.0.0+1.21.11.jar | HUD only |
+| 1.21.1 | seedgrid-1.0.0+1.21.1.jar | HUD only |
 
 On older versions the distance list and mark screen still work. Beams need the 26.2 render pipeline.
 
@@ -39,8 +39,9 @@ gradlew.bat "Set active project to 26.2.x"
 
 ## In game
 
-- Distance list on the left (26.2 also draws a beam)
+- Distance list on the left, a pin with name in the world
 - **K** opens the mark list
+- Size - / + on that screen, or `/seedgrid size 1.5` (0.5 to 3)
 - `/seedgrid list` and `/seedgrid clear`
 
 ## Adding another Minecraft version
@@ -49,6 +50,6 @@ See PORTING.md. You add a block in `stonecutter.properties.toml` and a line in `
 
 ## License
 
-MIT, NullForge
+MIT, Exempler201
 
 App: https://github.com/offjext/SeedGrid

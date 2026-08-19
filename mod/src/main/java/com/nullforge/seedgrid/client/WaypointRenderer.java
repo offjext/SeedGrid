@@ -66,8 +66,9 @@ public final class WaypointRenderer {
 				float x = w.x + 0.5f;
 				float z = w.z + 0.5f;
 				float y = w.y;
-				next.add(new Beam(x, y, y + 1.55f, z, 0.11f, rgb[0], rgb[1], rgb[2], 0.92f));
-				next.add(new Beam(x, y + 1.4f, y + 2.15f, z, 0.26f, rgb[0], rgb[1], rgb[2], 0.95f));
+				float s = SeedGridConfig.markScale();
+				next.add(new Beam(x, y, y + 1.55f * s, z, 0.11f * s, rgb[0], rgb[1], rgb[2], 0.92f));
+				next.add(new Beam(x, y + 1.4f * s, y + 2.15f * s, z, 0.26f * s, rgb[0], rgb[1], rgb[2], 0.95f));
 			}
 		}
 		beams = List.copyOf(next);
