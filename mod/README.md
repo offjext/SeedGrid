@@ -34,6 +34,9 @@ SeedGrid writes `%appdata%/.minecraft/seedgrid/waypoints.json` and talks to `127
 
 See PORTING.md. Keep `WaypointStore` / `WaypointBridge` and only touch renderer, HUD, and screen classes when mappings change.
 
-Mod source lives with the SeedGrid app: https://github.com/offjext/SeedGrid (folder `mod/`). This repo is the same Fabric project on its own so you can clone just the mod.
+The same sources also live in the SeedGrid app repo: https://github.com/offjext/SeedGrid (folder `mod/`).
+
+## License
 
 MIT, NullForge
+
