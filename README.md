@@ -1,0 +1,35 @@
+# SeedGrid
+
+Desktop Minecraft Java seed map. Pan, zoom, biomes, structures. Companion Fabric mod can drop those marks into the running game.
+
+Author: NullForge
+
+## App
+
+Needs Node.js 18+ and the files in this folder (including `cubiomes.wasm`).
+
+```
+npm install
+npx electron .
+```
+
+Or `start.bat` on Windows.
+
+Settings (seed, version, dimension, feature checkboxes, map position, completed marks) save locally and come back on the next launch.
+
+## Show at game
+
+1. Install Fabric Loader for Minecraft 26.2.
+2. Build the mod in `mod/` (`gradlew build`) and put the jar from `mod/build/libs` into `.minecraft/mods`.
+3. Start Minecraft, then SeedGrid.
+4. Click a structure (or a custom marker) and press **Show at game**.
+
+The game draws a beam at X/Z, shows distance on the HUD, and keeps a list of marks (key **K**, or `/seedgrid list`). **Remove mark** clears that one. **Marks** in the bottom bar lists all of them.
+
+Mod source: `mod/` in this repo, also published as [seedgrid-marks](https://github.com/offjext/seedgrid-marks).
+
+SeedGrid writes `%appdata%/.minecraft/seedgrid/waypoints.json` and talks to `127.0.0.1:38471` while the mod is running.
+
+## License
+
+MIT. Cubiomes is used for biome and structure lookup; see that project's license for the library itself.

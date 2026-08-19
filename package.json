@@ -1,0 +1,27 @@
+{
+  "name": "seedgrid",
+  "version": "1.0.0",
+  "description": "Minecraft seed map viewer",
+  "main": "main.js",
+  "author": "NullForge",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.nullforge.seedgrid",
+    "productName": "SeedGrid",
+    "files": [
+      "**/*",
+      "!node_modules/.cache/**"
+    ],
+    "win": {
+      "target": "portable",
+      "icon": "assets/icon.png"
+    }
+  }
+}

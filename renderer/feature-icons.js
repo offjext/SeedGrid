@@ -1,0 +1,41 @@
+'use strict';
+
+const FEATURE_ICONS = {
+  biomes: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="8" height="8" fill="#4a90c4"/><rect x="11" y="1" width="8" height="8" fill="#7ecf5a"/><rect x="1" y="11" width="8" height="8" fill="#d4a030"/><rect x="11" y="11" width="8" height="8" fill="#2a8c5a"/></svg>',
+  slime: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><ellipse cx="10" cy="12" rx="7" ry="5" fill="#7ecf5a"/><circle cx="7" cy="10" r="1.2" fill="#1a4010"/><circle cx="13" cy="10" r="1.2" fill="#1a4010"/></svg>',
+  spawn: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3c-3 0-5 2.5-5 6 0 4.5 5 8 5 8s5-3.5 5-8c0-3.5-2-6-5-6z" fill="#e04040"/><circle cx="10" cy="9" r="2" fill="#fff"/></svg>',
+  village: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="9" width="6" height="7" fill="#8b6914"/><polygon points="3,9 6,5 9,9" fill="#a0522d"/><rect x="11" y="7" width="6" height="9" fill="#8b6914"/><polygon points="11,7 14,3 17,7" fill="#a0522d"/></svg>',
+  outpost: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="8" y="4" width="4" height="12" fill="#505050"/><rect x="5" y="6" width="10" height="2" fill="#606060"/><rect x="6" y="10" width="8" height="2" fill="#606060"/></svg>',
+  mansion: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="8" width="16" height="9" fill="#4a2810"/><polygon points="2,8 10,2 18,8" fill="#2a1808"/><rect x="8" y="12" width="4" height="5" fill="#1a1008"/></svg>',
+  monument: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="6" width="12" height="10" fill="#2060a0"/><rect x="7" y="3" width="6" height="3" fill="#4080c0"/><rect x="9" y="10" width="2" height="6" fill="#103060"/></svg>',
+  pyramid: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><polygon points="10,3 18,16 2,16" fill="#d4a030"/><line x1="10" y1="3" x2="10" y2="16" stroke="#b08020" stroke-width="1"/></svg>',
+  jungle: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="10" width="12" height="7" fill="#208020"/><rect x="6" y="7" width="3" height="3" fill="#208020"/><rect x="11" y="5" width="3" height="5" fill="#208020"/></svg>',
+  hut: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="5" y="10" width="10" height="7" fill="#602060"/><polygon points="5,10 10,4 15,10" fill="#402040"/><rect x="12" y="5" width="4" height="3" fill="#202020"/></svg>',
+  igloo: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 14h12v2H4z" fill="#c0d8e8"/><path d="M5 14a5 5 0 0 1 10 0" fill="#d0f0ff" stroke="#90b0c8"/></svg>',
+  ruins: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="8" width="3" height="9" fill="#8040a0"/><rect x="14" y="8" width="3" height="9" fill="#8040a0"/><rect x="6" y="12" width="8" height="2" fill="#a060c0"/><circle cx="10" cy="8" r="3" fill="none" stroke="#8040a0" stroke-width="2"/></svg>',
+  shipwreck: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 14l14-4-2 6H5z" fill="#604020"/><line x1="12" y1="6" x2="8" y2="14" stroke="#503010" stroke-width="2"/></svg>',
+  treasure: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="9" width="12" height="7" fill="#8b6914"/><rect x="4" y="9" width="12" height="2" fill="#ffd700"/><path d="M7 12h6M7 14h6" stroke="#604010"/></svg>',
+  mineshaft: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="8" y="2" width="2" height="16" fill="#806040"/><line x1="5" y1="5" x2="13" y2="5" stroke="#604020"/><line x1="5" y1="10" x2="13" y2="10" stroke="#604020"/><line x1="5" y1="15" x2="13" y2="15" stroke="#604020"/></svg>',
+  ancient: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="6" width="16" height="11" fill="#203040"/><circle cx="7" cy="11" r="2" fill="#40a0a0"/><circle cx="13" cy="11" r="2" fill="#40a0a0"/></svg>',
+  trail: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="11" width="12" height="6" fill="#806050"/><rect x="7" y="8" width="2" height="3" fill="#806050"/><rect x="11" y="7" width="2" height="4" fill="#806050"/></svg>',
+  trial: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="5" width="14" height="12" fill="#505878"/><rect x="8" y="8" width="4" height="4" fill="#c08040"/><rect x="6" y="3" width="8" height="2" fill="#606890"/></svg>',
+  camp: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><polygon points="10,4 17,15 3,15" fill="#708040"/><line x1="10" y1="4" x2="10" y2="15" stroke="#506030"/></svg>',
+  portal: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="4" width="3" height="13" fill="#9050b0"/><rect x="13" y="4" width="3" height="13" fill="#9050b0"/><ellipse cx="10" cy="10" rx="3" ry="5" fill="none" stroke="#c080e0" stroke-width="2"/></svg>',
+  portal2: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="5" y="3" width="2" height="14" fill="#703090"/><rect x="13" y="3" width="2" height="14" fill="#703090"/><path d="M7 10c0-3 2-5 3-5s3 2 3 5-2 5-3 5-3-2-3-5z" fill="#40ffa0" opacity="0.7"/></svg>',
+  well: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="6" y="8" width="8" height="8" fill="#c0a060"/><rect x="5" y="7" width="10" height="2" fill="#a08040"/><path d="M8 12h4" stroke="#604020"/></svg>',
+  geode: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7" fill="#b090ff"/><circle cx="10" cy="10" r="4" fill="#e0d0ff"/><circle cx="8" cy="8" r="1" fill="#fff"/></svg>',
+  stronghold: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="5" width="14" height="12" fill="#505050"/><rect x="8" y="10" width="4" height="7" fill="#303030"/><rect x="5" y="7" width="3" height="3" fill="#606060"/><rect x="12" y="7" width="3" height="3" fill="#606060"/></svg>',
+  fortress: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="6" width="16" height="10" fill="#702020"/><rect x="5" y="4" width="3" height="4" fill="#802828"/><rect x="12" y="4" width="3" height="4" fill="#802828"/></svg>',
+  bastion: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="8" width="14" height="9" fill="#403030"/><rect x="6" y="5" width="8" height="3" fill="#302020"/><rect x="8" y="11" width="4" height="6" fill="#201818"/></svg>',
+  endcity: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="9" width="12" height="8" fill="#d0b0ff"/><rect x="7" y="5" width="6" height="4" fill="#b090e0"/><rect x="9" y="3" width="2" height="2" fill="#9070c0"/></svg>',
+  elytra: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3L3 8l2 9 5-4 5 4 2-9z" fill="#e8d070"/><path d="M10 7v8" stroke="#8a7020" stroke-width="1.4"/><path d="M5 9l5 3 5-3" fill="none" stroke="#8a7020"/></svg>',
+  gateway: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7" fill="none" stroke="#80ffe0" stroke-width="2"/><circle cx="10" cy="10" r="3" fill="#80ffe0"/><line x1="10" y1="1" x2="10" y2="5" stroke="#80ffe0"/><line x1="10" y1="15" x2="10" y2="19" stroke="#80ffe0"/></svg>',
+  custom: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2c-3 0-5.5 2.4-5.5 5.5 0 4.1 5.5 10.5 5.5 10.5S15.5 11.6 15.5 7.5C15.5 4.4 13 2 10 2z" fill="#d65a4a"/><circle cx="10" cy="7.5" r="2.2" fill="#fff"/></svg>'
+};
+
+function iconHtml(key) {
+  return FEATURE_ICONS[key] || FEATURE_ICONS.biomes;
+}
+
+window.FEATURE_ICONS = FEATURE_ICONS;
+window.iconHtml = iconHtml;

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:">
+  <title>SeedGrid</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="titlebar">
+    <div class="titlebar-left">
+      <img src="../assets/icon.svg" alt="" class="titlebar-logo" width="16" height="16">
+      <span class="titlebar-name">SeedGrid</span>
+    </div>
+    <div class="titlebar-controls">
+      <button type="button" id="winMin" class="win-btn" title="Minimize">
+        <svg width="10" height="1" viewBox="0 0 10 1"><rect width="10" height="1" fill="currentColor"/></svg>
+      </button>
+      <button type="button" id="winMax" class="win-btn" title="Maximize">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor"><rect x="0.5" y="0.5" width="9" height="9"/></svg>
+      </button>
+      <button type="button" id="winClose" class="win-btn win-close" title="Close">
+        <svg width="10" height="10" viewBox="0 0 10 10" stroke="currentColor" stroke-width="1.2"><line x1="0" y1="0" x2="10" y2="10"/><line x1="10" y1="0" x2="0" y2="10"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="controls-area">
+      <div class="ctrl-row ctrl-row-top">
+        <label class="ctrl-label">Seed:
+          <input id="seedInput" type="text" class="ctrl-input seed-input" value="5781506628997407461">
+        </label>
+        <button id="randomBtn" type="button" class="ctrl-btn">Random</button>
+        <label class="ctrl-label">Version:
+          <select id="versionSelect" class="ctrl-select"></select>
+        </label>
+        <label class="ctrl-label">Dimension:
+          <select id="dimensionSelect" class="ctrl-select">
+            <option value="0">Overworld</option>
+            <option value="-1">The Nether</option>
+            <option value="1">The End</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="features-panel" id="featuresBar"></div>
+    </div>
+
+    <div class="map-area">
+      <div class="map-axis map-axis-x" id="axisTop"></div>
+      <div class="map-axis map-axis-z" id="axisLeft"></div>
+      <div class="map-viewport" id="mapViewport">
+        <canvas id="mapCanvas"></canvas>
+        <div id="markerLayer" class="marker-layer"></div>
+        <div id="popover" class="popover hidden"></div>
+        <div id="mapNote" class="map-note"></div>
+        <div id="mouseCoords" class="mouse-coords"></div>
+        <div class="map-buttons">
+          <button type="button" class="map-btn" id="zoomInBtn">+</button>
+          <button type="button" class="map-btn" id="zoomOutBtn">-</button>
+        </div>
+        <div id="marksPanel" class="marks-panel hidden">
+          <div class="marks-head">
+            <span>In-game marks</span>
+            <button type="button" id="marksClose" class="ctrl-btn">Close</button>
+          </div>
+          <div id="marksStatus" class="marks-status">Minecraft is not connected</div>
+          <div id="marksList" class="marks-list"></div>
+          <button type="button" id="marksClear" class="ctrl-btn">Remove all</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="bottom-group">
+        <label class="ctrl-label">Biome Height:
+          <select id="ySelect" class="ctrl-select">
+            <option value="64" selected>Surface</option>
+            <option value="256">Y 256</option>
+            <option value="0">Underground</option>
+            <option value="-51">Bottom (Y -51)</option>
+          </select>
+        </label>
+        <label class="ctrl-label">X:
+          <input id="goX" type="number" class="ctrl-input coord-input" value="0">
+        </label>
+        <label class="ctrl-label">Z:
+          <input id="goZ" type="number" class="ctrl-input coord-input" value="0">
+        </label>
+        <button id="goBtn" type="button" class="ctrl-btn">Go!</button>
+      </div>
+      <div class="bottom-group">
+        <label class="feat-check"><input id="terrainToggle" type="checkbox"> Terrain</label>
+        <label class="feat-check"><input id="gridToggle" type="checkbox" checked> Grid Lines</label>
+        <button id="marksBtn" type="button" class="ctrl-btn">Marks</button>
+        <button id="shareBtn" type="button" class="ctrl-btn">Share</button>
+      </div>
+    </div>
+
+    <div id="statusLine" class="status-line">Ready</div>
+  </div>
+
+  <script src="feature-icons.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

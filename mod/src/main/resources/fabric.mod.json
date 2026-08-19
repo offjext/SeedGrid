@@ -1,0 +1,36 @@
+{
+	"schemaVersion": 1,
+	"id": "seedgrid",
+	"version": "${version}",
+	"name": "SeedGrid Marks",
+	"description": "Shows SeedGrid map marks in the world: beams, distance, and a mark list.",
+	"authors": [
+		"NullForge"
+	],
+	"contact": {
+		"sources": "https://github.com/offjext/seedgrid-marks"
+	},
+	"license": "MIT",
+	"icon": "assets/seedgrid/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"main": [
+			"com.nullforge.seedgrid.SeedGridMod"
+		],
+		"client": [
+			"com.nullforge.seedgrid.client.SeedGridClient"
+		]
+	},
+	"mixins": [
+		{
+			"config": "seedgrid.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
