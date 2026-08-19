@@ -7,7 +7,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 
 import java.io.IOException;
@@ -120,12 +119,7 @@ public final class WaypointBridge {
 	}
 
 	private static void tell(String text) {
-		Minecraft mc = Minecraft.getInstance();
-		mc.execute(() -> {
-			if (mc.gui != null && mc.gui.hud != null) {
-				mc.gui.hud.setOverlayMessage(Component.literal(text), false);
-			}
-		});
+		ClientCompat.overlay(Minecraft.getInstance(), text);
 	}
 
 	private static boolean preflight(HttpExchange ex) throws IOException {

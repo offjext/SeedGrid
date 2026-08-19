@@ -1,0 +1,28 @@
+# Shared properties. Per-version blocks below.
+mod.id = "seedgrid"
+mod.name = "SeedGrid Marks"
+mod.group = "com.nullforge"
+mod.version = "1.1.0"
+
+deps.fabric_loader = "0.19.3"
+loomx.loom_version = "1.17-SNAPSHOT"
+
+["1.21.1"]
+mod.mc_compat = ">=1.21 <=1.21.1"
+mod.java = ">=21"
+deps.fabric_api = "0.116.15+1.21.1"
+
+["1.21.11"]
+mod.mc_compat = "1.21.11"
+mod.java = ">=21"
+deps.fabric_api = "0.141.6+1.21.11"
+
+["26.1.x"]
+mod.mc_compat = "~26.1"
+mod.java = ">=25"
+deps.fabric_api = "0.146.1+26.1.2"
+
+["26.2.x"]
+mod.mc_compat = "~26.2"
+mod.java = ">=25"
+deps.fabric_api = "0.157.0+26.2"

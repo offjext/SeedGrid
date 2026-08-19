@@ -1,45 +1,47 @@
 # Porting SeedGrid Marks
 
-The protocol does not depend on Minecraft:
+This project uses Stonecutter (https://stonecutter.kikugie.dev) plus loom-back-compat. That is the usual Fabric way to keep one `src/` tree and emit a jar per Minecraft version.
 
-- HTTP on 127.0.0.1:38471 (`/v1/waypoint`, `/v1/waypoints`, `/v1/clear`, `/v1/status`)
-- File `.minecraft/seedgrid/waypoints.json`
+## Add a version
 
-Those live in `WaypointStore` and `WaypointBridge`. Leave them alone unless the JSON shape must change.
-
-## What people usually bump
-
-In `gradle.properties`:
+1. `settings.gradle.kts` inside `stonecutter { create(rootProject) { ... } }`:
 
 ```
-minecraft_version=26.2
-loader_version=0.19.3
-loom_version=1.17-SNAPSHOT
-fabric_api_version=0.157.0+26.2
+versions("1.21.1", "1.21.11", "1.22")
 ```
 
-Then:
+or `version("26.3.x", "26.3")` when the game id differs from the folder name.
 
-1. Check https://fabricmc.net/develop for the new Loom, Loader, and Fabric API numbers.
-2. Check the Fabric blog / docs "Porting to XX" page.
-3. `gradlew genSources` and fix compile errors.
+2. `stonecutter.properties.toml`:
 
-## Classes that break on a new version
+```
+["26.3.x"]
+mod.mc_compat = "~26.3"
+mod.java = ">=25"
+deps.fabric_api = "x.y.z+26.3"
+```
 
-These call Minecraft rendering and screens:
+Get Fabric API numbers from https://fabricmc.net/develop
 
-- `WaypointRenderer` - world beams (Fabric LevelRenderEvents)
-- `WaypointHud` - distance text
-- `WaypointScreen` - mark list
-- `SeedGridClient` - keybind and `/seedgrid`
-- `GameRendererMixin` - only if `GameRenderer.close` is renamed
+3. `gradlew.bat` refresh. Fix compile errors with `//? if` in the Java files.
 
-HUD: `GuiGraphicsExtractor.text` / `fill`
-Screen: `Button.builder`, `extractRenderState`
-Keybind: `KeyMappingHelper` + `KeyMapping.Category.register`
+4. Keep `WaypointStore` and `WaypointBridge` untouched if you can. They only talk HTTP and a json file.
 
-## Multi-version later
+## Where code splits
 
-Stonecutter or Architectury can keep one repo on several MC versions. Start from a working 26.2 tree, copy the version folder, change `gradle.properties`, then fix the files above.
+- `>=26.2` - `Minecraft.gui.setScreen`, overlay on `gui.hud`, world beams
+- `>=26.1` - `GuiGraphicsExtractor`, `KeyMappingHelper`, `ClientCommands`
+- `>=1.21.9` - `KeyMapping.Category`
+- `>=1.21.11` - `Identifier` instead of `ResourceLocation`
+- `>=1.21.6` - `HudElementRegistry` instead of `HudRenderCallback`
+- `>=26.1` - client commands class is `ClientCommands`, older is `ClientCommandManager`
 
-Do not mix Overworld/Nether/End cell sizes in the desktop app when you add versions there. The mod only stores block X/Y/Z plus dimension id 0 / -1 / 1.
+Active checkout is 26.2.x. That is the file you edit. Stonecutter copies and strips branches for the other versions.
+
+## Commands
+
+```
+gradlew.bat "Set active project to 1.21.1"
+gradlew.bat :1.21.1:build
+gradlew.bat :26.2.x:build
+```

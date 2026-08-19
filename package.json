@@ -1,6 +1,6 @@
 {
   "name": "seedgrid",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Minecraft seed map viewer",
   "main": "main.js",
   "author": "NullForge",
@@ -15,12 +15,32 @@
   "build": {
     "appId": "com.nullforge.seedgrid",
     "productName": "SeedGrid",
+    "artifactName": "SeedGrid-${version}-win.exe",
+    "asar": false,
+    "directories": {
+      "output": "dist"
+    },
     "files": [
-      "**/*",
-      "!node_modules/.cache/**"
+      "main.js",
+      "preload.js",
+      "game-bridge.js",
+      "package.json",
+      "cubiomes.js",
+      "cubiomes.wasm",
+      "engine/**",
+      "renderer/**",
+      "assets/**",
+      "!assets/icon-256.png"
     ],
     "win": {
-      "target": "portable",
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "assets/icon.png"
     }
   }

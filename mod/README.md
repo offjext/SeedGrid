@@ -1,42 +1,54 @@
-# SeedGrid Marks (Fabric 26.2)
+# SeedGrid Marks
 
-Client mod for the SeedGrid map app. Click **Show at game** on a structure and a beam shows up in Minecraft, with distance on the HUD.
+Fabric client mod for the SeedGrid map app. **Show at game** drops a mark in Minecraft.
+
+Built with **Stonecutter** so one codebase makes jars for several Minecraft versions.
+
+## Versions
+
+| Minecraft | Jar name | Beams in world |
+| --- | --- | --- |
+| 26.2 | seedgrid-1.1.0+26.2.jar | yes |
+| 26.1 | seedgrid-1.1.0+26.1.jar | HUD only |
+| 1.21.11 | seedgrid-1.1.0+1.21.11.jar | HUD only |
+| 1.21.1 | seedgrid-1.1.0+1.21.1.jar | HUD only |
+
+On older versions the distance list and mark screen still work. Beams need the 26.2 render pipeline.
 
 ## Install
 
-1. Minecraft Java **26.2**
-2. Fabric Loader **0.19.3** or newer
-3. Fabric API for 26.2
-4. Drop the jar from `build/libs` into `.minecraft/mods`
+1. Fabric Loader + Fabric API for that Minecraft version
+2. Matching jar into `.minecraft/mods`
+3. Start the game, then SeedGrid, click a structure, **Show at game**
 
-Build:
+## Build every version
+
+Needs Java 21+ (Java 25 for 26.x). From this folder:
 
 ```
 gradlew.bat build
 ```
 
-Needs **Java 25**. Gradle can download that JDK through the toolchain if your `java` command is older.
+Jars land in `versions/<mc>/build/libs`.
 
-Jar: `build/libs/seedgrid-1.0.0.jar`
+Switch the sources you edit:
+
+```
+gradlew.bat "Set active project to 26.2.x"
+```
 
 ## In game
 
-- Beams at the mark X/Z, visible through walls
-- Distance list on the left
-- **K** opens the mark list (change in Controls)
-- `/seedgrid list` same screen
-- `/seedgrid clear` removes every mark
-- Each row has **X** to delete that mark
+- Distance list on the left (26.2 also draws a beam)
+- **K** opens the mark list
+- `/seedgrid list` and `/seedgrid clear`
 
-SeedGrid writes `%appdata%/.minecraft/seedgrid/waypoints.json` and talks to `127.0.0.1:38471` while this mod is running. If the game is closed, the file is still there for the next launch.
+## Adding another Minecraft version
 
-## Porting to other versions
-
-See PORTING.md. Keep `WaypointStore` / `WaypointBridge` and only touch renderer, HUD, and screen classes when mappings change.
-
-The same sources also live in the SeedGrid app repo: https://github.com/offjext/SeedGrid (folder `mod/`).
+See PORTING.md. You add a block in `stonecutter.properties.toml` and a line in `settings.gradle.kts`, then wrap API differences with `//? if >=x.y {`.
 
 ## License
 
 MIT, NullForge
 
+App: https://github.com/offjext/SeedGrid

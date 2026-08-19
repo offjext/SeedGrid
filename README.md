@@ -6,21 +6,23 @@ Author: NullForge
 
 ## App
 
-Needs Node.js 18+ and the files in this folder (including `cubiomes.wasm`).
+Windows: download `SeedGrid-1.1.0-win.exe` from [Releases](https://github.com/offjext/SeedGrid/releases). Node and Electron are inside that file. Double-click, no install.
+
+From source (Node.js 18+):
 
 ```
 npm install
 npx electron .
 ```
 
-Or `start.bat` on Windows.
+Or `start.bat`. To pack the exe: `npm run pack` (output in `dist/`).
 
 Settings (seed, version, dimension, feature checkboxes, map position, completed marks) save locally and come back on the next launch.
 
 ## Show at game
 
-1. Install Fabric Loader for Minecraft 26.2.
-2. Build the mod in `mod/` (`gradlew build`) and put the jar from `mod/build/libs` into `.minecraft/mods`.
+1. Install Fabric Loader and Fabric API for your Minecraft version (26.2, 26.1, 1.21.11, or 1.21.1).
+2. Put the matching jar from [seedgrid-marks releases](https://github.com/offjext/seedgrid-marks/releases) into `.minecraft/mods`.
 3. Start Minecraft, then SeedGrid.
 4. Click a structure (or a custom marker) and press **Show at game**.
 

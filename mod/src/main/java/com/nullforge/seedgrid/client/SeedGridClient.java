@@ -3,20 +3,26 @@ package com.nullforge.seedgrid.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.nullforge.seedgrid.SeedGridMod;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
+//? if >=26.1 {
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+//?} else {
+/*import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+*///?}
 
 public class SeedGridClient implements ClientModInitializer {
+	//? if >=1.21.9 {
 	private static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(
-		Identifier.fromNamespaceAndPath(SeedGridMod.MOD_ID, "main")
+		SeedGridMod.id("main")
 	);
+	//?}
 	private KeyMapping openMarks;
 	private int watchTick;
 
@@ -27,16 +33,32 @@ public class SeedGridClient implements ClientModInitializer {
 		WaypointRenderer.register();
 		WaypointHud.register();
 
+		//? if >=26.1 {
 		this.openMarks = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 			"key.seedgrid.marks",
 			InputConstants.Type.KEYSYM,
 			InputConstants.KEY_K,
 			CATEGORY
 		));
+		//?} else if >=1.21.9 {
+		/*this.openMarks = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+			"key.seedgrid.marks",
+			InputConstants.Type.KEYSYM,
+			InputConstants.KEY_K,
+			CATEGORY
+		));
+		*///?} else {
+		/*this.openMarks = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+			"key.seedgrid.marks",
+			InputConstants.Type.KEYSYM,
+			InputConstants.KEY_K,
+			"key.categories.misc"
+		));
+		*///?}
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while (this.openMarks.consumeClick()) {
-				client.gui.setScreen(new WaypointScreen(client.gui.screen()));
+				ClientCompat.setScreen(client, new WaypointScreen(ClientCompat.screen(client)));
 			}
 			this.watchTick += 1;
 			if (this.watchTick % 40 == 0) {
@@ -45,10 +67,11 @@ public class SeedGridClient implements ClientModInitializer {
 		});
 
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, access) -> {
+			//? if >=26.1 {
 			dispatcher.register(ClientCommands.literal("seedgrid")
 				.then(ClientCommands.literal("list").executes(ctx -> {
 					Minecraft mc = Minecraft.getInstance();
-					mc.gui.setScreen(new WaypointScreen(mc.gui.screen()));
+					ClientCompat.setScreen(mc, new WaypointScreen(ClientCompat.screen(mc)));
 					return 1;
 				}))
 				.then(ClientCommands.literal("clear").executes(ctx -> {
@@ -57,6 +80,20 @@ public class SeedGridClient implements ClientModInitializer {
 					return 1;
 				}))
 			);
+			//?} else {
+			/*dispatcher.register(ClientCommandManager.literal("seedgrid")
+				.then(ClientCommandManager.literal("list").executes(ctx -> {
+					Minecraft mc = Minecraft.getInstance();
+					ClientCompat.setScreen(mc, new WaypointScreen(ClientCompat.screen(mc)));
+					return 1;
+				}))
+				.then(ClientCommandManager.literal("clear").executes(ctx -> {
+					WaypointStore.clear();
+					ctx.getSource().sendFeedback(Component.literal("Cleared SeedGrid marks"));
+					return 1;
+				}))
+			);
+			*///?}
 		});
 	}
 

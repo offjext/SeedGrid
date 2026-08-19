@@ -1,14 +1,18 @@
 package com.nullforge.seedgrid.client;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+//? if >=26.1 {
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+//?} else {
+/*import net.minecraft.client.gui.GuiGraphics;
+*///?}
 
 public class WaypointScreen extends Screen {
 	private final Screen parent;
@@ -64,6 +68,7 @@ public class WaypointScreen extends Screen {
 			.build());
 	}
 
+	//? if >=26.1 {
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 		super.extractRenderState(graphics, mouseX, mouseY, delta);
@@ -72,9 +77,19 @@ public class WaypointScreen extends Screen {
 			graphics.centeredText(this.font, Component.literal("No marks"), this.width / 2, this.height / 2 - 10, 0xFFAAAAAA);
 		}
 	}
+	//?} else {
+	/*@Override
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+		super.render(graphics, mouseX, mouseY, delta);
+		graphics.drawCenteredString(this.font, this.title, this.width / 2, 12, 0xFFFFFFFF);
+		if (WaypointStore.snapshot().isEmpty()) {
+			graphics.drawCenteredString(this.font, "No marks", this.width / 2, this.height / 2 - 10, 0xFFAAAAAA);
+		}
+	}
+	*///?}
 
 	@Override
 	public void onClose() {
-		if (this.minecraft != null) this.minecraft.gui.setScreen(this.parent);
+		if (this.minecraft != null) ClientCompat.setScreen(this.minecraft, this.parent);
 	}
 }

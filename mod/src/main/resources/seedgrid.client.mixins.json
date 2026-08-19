@@ -1,7 +1,7 @@
 {
 	"required": true,
 	"package": "com.nullforge.seedgrid.client.mixin",
-	"compatibilityLevel": "JAVA_25",
+	"compatibilityLevel": "${java_mixin}",
 	"client": [
 		"GameRendererMixin"
 	],

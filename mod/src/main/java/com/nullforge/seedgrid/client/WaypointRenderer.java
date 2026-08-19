@@ -1,5 +1,6 @@
 package com.nullforge.seedgrid.client;
 
+//? if >=26.2 {
 import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
@@ -159,3 +160,14 @@ public final class WaypointRenderer {
 		BUFFER.close();
 	}
 }
+//?} else {
+/*public final class WaypointRenderer {
+	private WaypointRenderer() {}
+
+	public static void register() {
+	}
+
+	public static void close() {
+	}
+}
+*///?}
