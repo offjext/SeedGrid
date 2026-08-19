@@ -6,14 +6,14 @@ Built with **Stonecutter** so one codebase makes jars for several Minecraft vers
 
 ## Versions
 
-| Minecraft | Jar name | Beams in world |
+| Minecraft | Jar name | World pin |
 | --- | --- | --- |
 | 26.2 | seedgrid-1.0.0+26.2.jar | yes |
 | 26.1 | seedgrid-1.0.0+26.1.jar | HUD only |
 | 1.21.11 | seedgrid-1.0.0+1.21.11.jar | HUD only |
 | 1.21.1 | seedgrid-1.0.0+1.21.1.jar | HUD only |
 
-On older versions the distance list and mark screen still work. Beams need the 26.2 render pipeline.
+HUD, name, distance, and mark size are the same on every version. The world pin uses the 26.2 render pipeline.
 
 ## Install
 

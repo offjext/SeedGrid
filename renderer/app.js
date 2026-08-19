@@ -655,6 +655,7 @@ async function loadBiomes(force, tight) {
     console.error(err);
     els.status.textContent = `Error: ${err.message}`;
   } finally {
+    if (gen !== state.biomeGen) return;
     state.biomeBusy = false;
     if (state.biomeAgain) {
       state.biomeAgain = false;

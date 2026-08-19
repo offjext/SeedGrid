@@ -26,7 +26,7 @@ Settings (seed, version, dimension, feature checkboxes, map position, completed 
 3. Start Minecraft, then SeedGrid.
 4. Click a structure (or a custom marker) and press **Show at game**.
 
-The game draws a beam at X/Z, shows distance on the HUD, and keeps a list of marks (key **K**, or `/seedgrid list`). **Remove mark** clears that one. **Marks** in the bottom bar lists all of them.
+The game draws a pin at X/Z, shows name and distance on the HUD, and keeps a list of marks (key **K**, or `/seedgrid list`). Mark size is `-` / `+` on that screen, or `/seedgrid size 1.5`. **Remove mark** clears that one. **Marks** in the bottom bar lists all of them. Icon size in the app is the **Icons** slider.
 
 Mod source: `mod/` in this repo, also published as [seedgrid-marks](https://github.com/offjext/seedgrid-marks).
 
