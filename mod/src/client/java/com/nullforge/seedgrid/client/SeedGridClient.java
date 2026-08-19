@@ -3,7 +3,7 @@ package com.nullforge.seedgrid.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.nullforge.seedgrid.SeedGridMod;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
@@ -36,7 +36,7 @@ public class SeedGridClient implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while (this.openMarks.consumeClick()) {
-				client.setScreen(new WaypointScreen(client.screen));
+				client.gui.setScreen(new WaypointScreen(client.gui.screen()));
 			}
 			this.watchTick += 1;
 			if (this.watchTick % 40 == 0) {
@@ -45,18 +45,15 @@ public class SeedGridClient implements ClientModInitializer {
 		});
 
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, access) -> {
-			dispatcher.register(ClientCommandManager.literal("seedgrid")
-				.then(ClientCommandManager.literal("list").executes(ctx -> {
+			dispatcher.register(ClientCommands.literal("seedgrid")
+				.then(ClientCommands.literal("list").executes(ctx -> {
 					Minecraft mc = Minecraft.getInstance();
-					mc.setScreen(new WaypointScreen(mc.screen));
+					mc.gui.setScreen(new WaypointScreen(mc.gui.screen()));
 					return 1;
 				}))
-				.then(ClientCommandManager.literal("clear").executes(ctx -> {
+				.then(ClientCommands.literal("clear").executes(ctx -> {
 					WaypointStore.clear();
-					Minecraft mc = Minecraft.getInstance();
-					if (mc.player != null) {
-						mc.player.displayClientMessage(Component.literal("Cleared SeedGrid marks"), false);
-					}
+					ctx.getSource().sendFeedback(Component.literal("Cleared SeedGrid marks"));
 					return 1;
 				}))
 			);

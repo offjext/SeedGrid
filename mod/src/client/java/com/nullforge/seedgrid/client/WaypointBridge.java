@@ -122,8 +122,8 @@ public final class WaypointBridge {
 	private static void tell(String text) {
 		Minecraft mc = Minecraft.getInstance();
 		mc.execute(() -> {
-			if (mc.player != null) {
-				mc.player.displayClientMessage(Component.literal(text), true);
+			if (mc.gui != null && mc.gui.hud != null) {
+				mc.gui.hud.setOverlayMessage(Component.literal(text), false);
 			}
 		});
 	}

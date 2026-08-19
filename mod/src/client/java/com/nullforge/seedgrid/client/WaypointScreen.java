@@ -67,14 +67,14 @@ public class WaypointScreen extends Screen {
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 		super.extractRenderState(graphics, mouseX, mouseY, delta);
-		graphics.centeredText(this.font, this.title, this.width / 2, 12, 0xFFFFFFFF, true);
+		graphics.centeredText(this.font, this.title, this.width / 2, 12, 0xFFFFFFFF);
 		if (WaypointStore.snapshot().isEmpty()) {
-			graphics.centeredText(this.font, Component.literal("No marks"), this.width / 2, this.height / 2 - 10, 0xFFAAAAAA, false);
+			graphics.centeredText(this.font, Component.literal("No marks"), this.width / 2, this.height / 2 - 10, 0xFFAAAAAA);
 		}
 	}
 
 	@Override
 	public void onClose() {
-		if (this.minecraft != null) this.minecraft.setScreen(this.parent);
+		if (this.minecraft != null) this.minecraft.gui.setScreen(this.parent);
 	}
 }
