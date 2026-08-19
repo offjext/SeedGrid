@@ -168,7 +168,7 @@ function queryBiomes(p) {
   }
 
   return {
-    b64: Buffer.from(pixels.buffer, pixels.byteOffset, pixels.byteLength).toString('base64'),
+    pixels: Buffer.from(pixels.buffer, pixels.byteOffset, pixels.byteLength),
     gw,
     gh,
     ox: worldOx,

@@ -6,7 +6,7 @@ Author: NullForge
 
 ## App
 
-Windows: download `SeedGrid-1.1.0-win.exe` from [Releases](https://github.com/offjext/SeedGrid/releases). Node and Electron are inside that file. Double-click, no install.
+Windows: download `SeedGrid-1.1.1-win.exe` from [Releases](https://github.com/offjext/SeedGrid/releases). Node and Electron are inside that file. Double-click, no install.
 
 From source (Node.js 18+):
 

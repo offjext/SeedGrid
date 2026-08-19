@@ -39,6 +39,14 @@ const state = {
   structAgain: false
 };
 
+const biomeTiles = new Map();
+const TILE_CELLS = 128;
+const TILE_LIMIT = 80;
+let popoverMarker = null;
+let popoverPx = 0;
+let popoverPy = 0;
+let gamePollBusy = false;
+
 const els = {};
 let ctx = null;
 const iconImgs = {};
@@ -280,6 +288,87 @@ function canvasToWorld(px, py) {
   };
 }
 
+function biomeWorldKey() {
+  return `${state.seed}|${state.versionId}|${state.dim}|${state.y}|${state.terrain ? 1 : 0}|${currentScale()}`;
+}
+
+function tileBlocks() {
+  return TILE_CELLS * currentScale();
+}
+
+function tileKey(tx, tz) {
+  return `${biomeWorldKey()}|${tx}|${tz}`;
+}
+
+function rememberTile(key, tile) {
+  if (biomeTiles.has(key)) biomeTiles.delete(key);
+  biomeTiles.set(key, tile);
+  while (biomeTiles.size > TILE_LIMIT) {
+    const first = biomeTiles.keys().next().value;
+    biomeTiles.delete(first);
+  }
+}
+
+function stashBiomeTiles(canvas, ox, oz, bw, bh, scale) {
+  const ts = tileBlocks();
+  if (scale !== currentScale()) return;
+  const tx0 = Math.floor(ox / ts);
+  const tz0 = Math.floor(oz / ts);
+  const tx1 = Math.floor((ox + bw - 1) / ts);
+  const tz1 = Math.floor((oz + bh - 1) / ts);
+  for (let tz = tz0; tz <= tz1; tz++) {
+    for (let tx = tx0; tx <= tx1; tx++) {
+      const tox = tx * ts;
+      const toz = tz * ts;
+      if (tox < ox || toz < oz || tox + ts > ox + bw || toz + ts > oz + bh) continue;
+      const cells = TILE_CELLS;
+      const sx = (tox - ox) / scale;
+      const sy = (toz - oz) / scale;
+      const tile = document.createElement('canvas');
+      tile.width = cells;
+      tile.height = cells;
+      tile.getContext('2d').drawImage(canvas, sx, sy, cells, cells, 0, 0, cells, cells);
+      rememberTile(tileKey(tx, tz), { canvas: tile, ox: tox, oz: toz, bw: ts, bh: ts });
+    }
+  }
+}
+
+function missingBiomeBox(tight) {
+  const ts = tileBlocks();
+  const visible = visibleBounds();
+  const extra = tight ? 0 : Math.round(visible.bw * 0.08);
+  const ox = visible.ox - extra;
+  const oz = visible.oz - extra;
+  const bw = visible.bw + extra * 2;
+  const bh = visible.bh + extra * 2;
+  const tx0 = Math.floor(ox / ts);
+  const tz0 = Math.floor(oz / ts);
+  const tx1 = Math.floor((ox + bw - 1) / ts);
+  const tz1 = Math.floor((oz + bh - 1) / ts);
+  let minX = Infinity;
+  let minZ = Infinity;
+  let maxX = -Infinity;
+  let maxZ = -Infinity;
+  let miss = 0;
+  for (let tz = tz0; tz <= tz1; tz++) {
+    for (let tx = tx0; tx <= tx1; tx++) {
+      if (biomeTiles.has(tileKey(tx, tz))) continue;
+      miss += 1;
+      minX = Math.min(minX, tx * ts);
+      minZ = Math.min(minZ, tz * ts);
+      maxX = Math.max(maxX, tx * ts + ts);
+      maxZ = Math.max(maxZ, tz * ts + ts);
+    }
+  }
+  if (miss === 0) return null;
+  const cell = currentScale();
+  const maxBlocks = 1024 * cell;
+  let reqW = maxX - minX;
+  let reqH = maxZ - minZ;
+  if (reqW > maxBlocks || reqH > maxBlocks) return biomeBounds(tight);
+  return { ox: minX, oz: minZ, bw: reqW, bh: reqH };
+}
+
 function visibleBounds() {
   return {
     ox: Math.floor(originX()),
@@ -305,15 +394,17 @@ function biomeBounds(tight) {
 }
 
 function needFreshBiomes() {
-  if (!state.bmp) return true;
-  if (state.bmpScale !== currentScale()) return true;
-  const visible = visibleBounds();
-  return (
-    visible.ox < state.bmpOx ||
-    visible.oz < state.bmpOz ||
-    visible.ox + visible.bw > state.bmpOx + state.bmpBw ||
-    visible.oz + visible.bh > state.bmpOz + state.bmpBh
-  );
+  if (state.features.biomes === false) return false;
+  if (state.bmp && state.bmpScale === currentScale()) {
+    const visible = visibleBounds();
+    if (
+      visible.ox >= state.bmpOx &&
+      visible.oz >= state.bmpOz &&
+      visible.ox + visible.bw <= state.bmpOx + state.bmpBw &&
+      visible.oz + visible.bh <= state.bmpOz + state.bmpBh
+    ) return false;
+  }
+  return missingBiomeBox(true) != null;
 }
 
 function needFreshStructures() {
@@ -331,11 +422,28 @@ function drawBiome() {
   const { w, h } = mapSize();
   ctx.fillStyle = state.dim === -1 ? '#2a1010' : state.dim === 1 ? '#140820' : '#102030';
   ctx.fillRect(0, 0, w, h);
-  if (!state.bmp || state.features.biomes === false) return;
+  if (state.features.biomes === false) return;
+  ctx.imageSmoothingEnabled = false;
 
+  const ts = tileBlocks();
+  const visible = visibleBounds();
+  const tx0 = Math.floor(visible.ox / ts);
+  const tz0 = Math.floor(visible.oz / ts);
+  const tx1 = Math.floor((visible.ox + visible.bw - 1) / ts);
+  const tz1 = Math.floor((visible.oz + visible.bh - 1) / ts);
+  for (let tz = tz0; tz <= tz1; tz++) {
+    for (let tx = tx0; tx <= tx1; tx++) {
+      const tile = biomeTiles.get(tileKey(tx, tz));
+      if (!tile) continue;
+      const p0 = worldToCanvas(tile.ox, tile.oz);
+      const p1 = worldToCanvas(tile.ox + tile.bw, tile.oz + tile.bh);
+      ctx.drawImage(tile.canvas, 0, 0, tile.canvas.width, tile.canvas.height, p0.x, p0.y, p1.x - p0.x, p1.y - p0.y);
+    }
+  }
+
+  if (!state.bmp) return;
   const p0 = worldToCanvas(state.bmpOx, state.bmpOz);
   const p1 = worldToCanvas(state.bmpOx + state.bmpBw, state.bmpOz + state.bmpBh);
-  ctx.imageSmoothingEnabled = false;
   ctx.drawImage(
     state.bmp,
     0, 0, state.bmp.width, state.bmp.height,
@@ -493,6 +601,7 @@ function updateMouseCoords(px, py) {
 async function loadBiomes(force, tight) {
   if (state.features.biomes === false) {
     state.bmp = null;
+    biomeTiles.clear();
     render();
     return;
   }
@@ -502,12 +611,13 @@ async function loadBiomes(force, tight) {
     return;
   }
 
+  const bounds = missingBiomeBox(tight) || biomeBounds(tight);
   state.biomeBusy = true;
   state.biomeAgain = false;
   const gen = state.biomeGen;
   const dim = state.dim;
   const scale = currentScale();
-  const bounds = biomeBounds(tight);
+  const worldKey = biomeWorldKey();
   els.status.textContent = 'Loading biomes...';
 
   try {
@@ -523,17 +633,15 @@ async function loadBiomes(force, tight) {
       bw: bounds.bw,
       bh: bounds.bh
     });
-    if (gen !== state.biomeGen || dim !== state.dim) return;
+    if (gen !== state.biomeGen || dim !== state.dim || worldKey !== biomeWorldKey()) return;
 
     const canvas = document.createElement('canvas');
     canvas.width = result.gw;
     canvas.height = result.gh;
     const c = canvas.getContext('2d');
     const img = c.createImageData(result.gw, result.gh);
-    const bin = atob(result.b64);
-    const data = img.data;
-    const n = Math.min(data.length, bin.length);
-    for (let i = 0; i < n; i++) data[i] = bin.charCodeAt(i);
+    const src = pixelsFromResult(result);
+    if (src && src.length === img.data.length) img.data.set(src);
     c.putImageData(img, 0, 0);
 
     state.bmp = canvas;
@@ -542,6 +650,7 @@ async function loadBiomes(force, tight) {
     state.bmpBw = result.bw;
     state.bmpBh = result.bh;
     state.bmpScale = result.scale;
+    stashBiomeTiles(canvas, result.ox, result.oz, result.bw, result.bh, result.scale);
     els.status.textContent = 'Ready';
     render();
   } catch (err) {
@@ -555,6 +664,23 @@ async function loadBiomes(force, tight) {
       loadBiomes(false);
     }
   }
+}
+
+function pixelsFromResult(result) {
+  const raw = result.pixels;
+  if (raw) {
+    if (raw instanceof Uint8ClampedArray) return raw;
+    if (raw instanceof Uint8Array) return new Uint8ClampedArray(raw.buffer, raw.byteOffset, raw.byteLength);
+    if (Array.isArray(raw)) return new Uint8ClampedArray(raw);
+    if (raw.data) return new Uint8ClampedArray(raw.data);
+  }
+  if (result.b64) {
+    const bin = atob(result.b64);
+    const data = new Uint8ClampedArray(bin.length);
+    for (let i = 0; i < bin.length; i++) data[i] = bin.charCodeAt(i);
+    return data;
+  }
+  return null;
 }
 
 async function loadStructures() {
@@ -615,6 +741,7 @@ function dropWorld() {
   state.biomeGen += 1;
   state.structReq += 1;
   state.bmp = null;
+  biomeTiles.clear();
   state.structCache = {};
   state.structMarkers = [];
   state.stReady = false;
@@ -635,9 +762,8 @@ function jumpTo(x, z) {
   state.cx = x;
   state.cz = z;
   scheduleSave();
-  dropWorld();
   render();
-  loadBiomes(true, true);
+  loadBiomes(false, true);
   loadStructures();
   scheduleEdgeLoad();
 }
@@ -683,14 +809,29 @@ function dimLabel(dim) {
   return 'Overworld';
 }
 
+function marksEqual(a, b) {
+  const ak = Object.keys(a);
+  const bk = Object.keys(b);
+  if (ak.length !== bk.length) return false;
+  for (let i = 0; i < ak.length; i++) {
+    if (!b[ak[i]]) return false;
+  }
+  return true;
+}
+
 function applyGameList(waypoints) {
   const next = {};
   for (const w of waypoints || []) {
     if (w && w.id) next[w.id] = w;
   }
+  const changed = !marksEqual(state.gameMarks, next);
   state.gameMarks = next;
-  scheduleSave();
   renderMarksPanel();
+  if (!changed) return;
+  scheduleSave();
+  if (popoverMarker && els.popover && !els.popover.classList.contains('hidden')) {
+    showPopover(popoverMarker, popoverPx, popoverPy);
+  }
 }
 
 function renderMarksPanel() {
@@ -778,6 +919,7 @@ async function hideInGame(id) {
 
 function hidePopover() {
   els.popover.classList.add('hidden');
+  popoverMarker = null;
 }
 
 function showPopover(marker, px, py) {
@@ -811,6 +953,9 @@ function showPopover(marker, px, py) {
   els.popover.style.left = `${left}px`;
   els.popover.style.top = `${top}px`;
   els.popover.classList.remove('hidden');
+  popoverMarker = marker;
+  popoverPx = px;
+  popoverPy = py;
 
   $('popCopy').onclick = async () => {
     await window.seedgrid.copy(`X: ${marker.x}, Z: ${marker.z}`);
@@ -1112,6 +1257,13 @@ async function boot() {
   fitCanvas();
   applyForm();
   refreshGameMarks();
+  setInterval(() => {
+    if (gamePollBusy) return;
+    gamePollBusy = true;
+    refreshGameMarks().finally(() => {
+      gamePollBusy = false;
+    });
+  }, 800);
 }
 
 boot();

@@ -45,7 +45,7 @@ public final class WaypointRenderer {
 
 	private static List<Beam> beams = List.of();
 
-	private record Beam(float x, float y0, float y1, float z, float r, float g, float b, float a) {}
+	private record Beam(float x, float y0, float y1, float z, float s, float r, float g, float b, float a) {}
 
 	private WaypointRenderer() {}
 
@@ -65,7 +65,9 @@ public final class WaypointRenderer {
 				float[] rgb = w.rgb();
 				float x = w.x + 0.5f;
 				float z = w.z + 0.5f;
-				next.add(new Beam(x, -64f, 320f, z, rgb[0], rgb[1], rgb[2], 0.38f));
+				float y = w.y;
+				next.add(new Beam(x, y, y + 1.55f, z, 0.11f, rgb[0], rgb[1], rgb[2], 0.92f));
+				next.add(new Beam(x, y + 1.4f, y + 2.15f, z, 0.26f, rgb[0], rgb[1], rgb[2], 0.95f));
 			}
 		}
 		beams = List.copyOf(next);
@@ -92,8 +94,7 @@ public final class WaypointRenderer {
 		VertexConsumer builder = BUFFER.getVertexBuilder(draw);
 		Matrix4fc pose = matrices.last().pose();
 		for (Beam b : beams) {
-			float s = 0.18f;
-			filledBox(pose, builder, b.x - s, b.y0, b.z - s, b.x + s, b.y1, b.z + s, b.r, b.g, b.b, b.a);
+			filledBox(pose, builder, b.x - b.s, b.y0, b.z - b.s, b.x + b.s, b.y1, b.z + b.s, b.r, b.g, b.b, b.a);
 		}
 		matrices.popPose();
 

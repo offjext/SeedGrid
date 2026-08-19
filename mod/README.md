@@ -8,10 +8,10 @@ Built with **Stonecutter** so one codebase makes jars for several Minecraft vers
 
 | Minecraft | Jar name | Beams in world |
 | --- | --- | --- |
-| 26.2 | seedgrid-1.1.0+26.2.jar | yes |
-| 26.1 | seedgrid-1.1.0+26.1.jar | HUD only |
-| 1.21.11 | seedgrid-1.1.0+1.21.11.jar | HUD only |
-| 1.21.1 | seedgrid-1.1.0+1.21.1.jar | HUD only |
+| 26.2 | seedgrid-1.1.1+26.2.jar | yes |
+| 26.1 | seedgrid-1.1.1+26.1.jar | HUD only |
+| 1.21.11 | seedgrid-1.1.1+1.21.11.jar | HUD only |
+| 1.21.1 | seedgrid-1.1.1+1.21.1.jar | HUD only |
 
 On older versions the distance list and mark screen still work. Beams need the 26.2 render pipeline.
 
