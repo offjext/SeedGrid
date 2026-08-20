@@ -6,7 +6,7 @@ Author: Exempler201
 
 ## App
 
-[Releases](https://github.com/offjext/SeedGrid/releases): `SeedGrid-1.0.0-win.exe`
+[Releases](https://github.com/offjext/SeedGrid/releases): `SeedGrid-1.0.1-win.exe`
 
 From source:
 

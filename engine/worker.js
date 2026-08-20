@@ -42,8 +42,8 @@ function biomeAreaY(yBlock, dim) {
   return 16;
 }
 
-function clampCells(n) {
-  return Math.max(1, Math.min(1024, Math.round(n)));
+function clampCells(n, max) {
+  return Math.max(1, Math.min(max || 1024, Math.round(n)));
 }
 
 function villageBiomeId(x, z) {
@@ -133,39 +133,53 @@ function queryBiomes(p) {
   const dim = Number(p.dimension || 0);
   const y = biomeAreaY(Number(p.y ?? 64), dim);
   const terrain = !!p.terrain;
-  const cell = dim === 1 ? 64 : dim === -1 ? 32 : 16;
+  const native = dim === 1 ? 64 : dim === -1 ? 32 : 16;
+  let sample = Math.round(Number(p.scale) || native);
+  if (!Number.isFinite(sample) || sample < native) sample = native;
+  sample = Math.round(sample / native) * native;
 
   const ox = Math.round(Number(p.ox));
   const oz = Math.round(Number(p.oz));
-  const bw = Math.max(cell, Math.round(Number(p.bw)));
-  const bh = Math.max(cell, Math.round(Number(p.bh)));
+  const bw = Math.max(sample, Math.round(Number(p.bw)));
+  const bh = Math.max(sample, Math.round(Number(p.bh)));
 
   doSetSeed(dim, seedValue);
   currentSeedStr = p.seed;
   currentDim = dim;
 
-  const x0 = Math.floor(ox / cell);
-  const z0 = Math.floor(oz / cell);
-  const sx = clampCells(Math.ceil(bw / cell));
-  const sz = clampCells(Math.ceil(bh / cell));
-  const worldOx = x0 * cell;
-  const worldOz = z0 * cell;
-  const worldBw = sx * cell;
-  const worldBh = sz * cell;
+  const x0 = Math.floor(ox / sample);
+  const z0 = Math.floor(oz / sample);
+  const sx = clampCells(Math.ceil(bw / sample), 256);
+  const sz = clampCells(Math.ceil(bh / sample), 256);
+  const worldOx = x0 * sample;
+  const worldOz = z0 * sample;
+  const worldBw = sx * sample;
+  const worldBh = sz * sample;
   const n = sx * sz;
-
-  const biomePtr = m._get_biomes_area(x0, z0, sx, sz, y, 4);
-  if (!biomePtr) throw new Error('Biome area failed');
-
   const ids = new Int32Array(n);
-  for (let i = 0; i < n; i++) ids[i] = m.HEAP32[(biomePtr >> 2) + i];
-
   let heights = null;
-  if (terrain && n <= 65536) {
-    const hPtr = m._get_height_area(x0, z0, sx, sz, 4);
-    if (hPtr) {
-      heights = new Float32Array(n);
-      for (let i = 0; i < n; i++) heights[i] = m.HEAPF32[(hPtr >> 2) + i];
+
+  if (sample === native) {
+    const biomePtr = m._get_biomes_area(x0, z0, sx, sz, y, 4);
+    if (!biomePtr) throw new Error('Biome area failed');
+    for (let i = 0; i < n; i++) ids[i] = m.HEAP32[(biomePtr >> 2) + i];
+    if (terrain && n <= 16384) {
+      const hPtr = m._get_height_area(x0, z0, sx, sz, 4);
+      if (hPtr) {
+        heights = new Float32Array(n);
+        for (let i = 0; i < n; i++) heights[i] = m.HEAPF32[(hPtr >> 2) + i];
+      }
+    }
+  } else {
+    const stride = sample / native;
+    const cx0 = Math.floor(worldOx / native);
+    const cz0 = Math.floor(worldOz / native);
+    for (let z = 0; z < sz; z++) {
+      const cz = cz0 + z * stride;
+      for (let x = 0; x < sx; x++) {
+        const ptr = m._get_biomes_area(cx0 + x * stride, cz, 1, 1, y, 4);
+        ids[z * sx + x] = m.HEAP32[ptr >> 2];
+      }
     }
   }
 
@@ -178,7 +192,7 @@ function queryBiomes(p) {
     oz: worldOz,
     bw: worldBw,
     bh: worldBh,
-    scale: cell
+    scale: sample
   };
 }
 

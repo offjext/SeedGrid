@@ -44,7 +44,7 @@ const biomeTiles = new Map();
 const biomePending = new Set();
 const TILE_CELLS = 64;
 const TILE_LIMIT = 480;
-const QUERY_CELLS = 128;
+const QUERY_CELLS = 256;
 const BIOME_MAX_JOBS = 3;
 let popoverMarker = null;
 let popoverPx = 0;
@@ -302,7 +302,10 @@ function biomeWorldKey() {
 }
 
 function biomeStep() {
-  return currentScale();
+  const cell = currentScale();
+  let step = cell;
+  while (state.viewW / step > QUERY_CELLS) step *= 2;
+  return step;
 }
 
 function tileBlocks() {
@@ -364,15 +367,24 @@ function missingBiomeBox(tight) {
   const step = biomeStep();
   const ts = TILE_CELLS * step;
   const visible = visibleBounds();
-  const extra = tight ? Math.round(visible.bw * 0.04) : Math.round(visible.bw * 0.28);
-  const ox = visible.ox - extra;
-  const oz = visible.oz - extra;
-  const bw = visible.bw + extra * 2;
-  const bh = visible.bh + extra * 2;
+  const extra = tight ? 0 : Math.round(visible.bw * 0.08);
+  let ox = Math.floor((visible.ox - extra) / ts) * ts;
+  let oz = Math.floor((visible.oz - extra) / ts) * ts;
+  let x1 = Math.ceil((visible.ox + visible.bw + extra) / ts) * ts;
+  let z1 = Math.ceil((visible.oz + visible.bh + extra) / ts) * ts;
+  const maxB = QUERY_CELLS * step;
+  if (x1 - ox > maxB) {
+    ox = Math.floor((state.cx - maxB / 2) / ts) * ts;
+    x1 = ox + maxB;
+  }
+  if (z1 - oz > maxB) {
+    oz = Math.floor((state.cz - maxB / 2) / ts) * ts;
+    z1 = oz + maxB;
+  }
   const tx0 = Math.floor(ox / ts);
   const tz0 = Math.floor(oz / ts);
-  const tx1 = Math.floor((ox + bw - 1) / ts);
-  const tz1 = Math.floor((oz + bh - 1) / ts);
+  const tx1 = Math.floor((x1 - 1) / ts);
+  const tz1 = Math.floor((z1 - 1) / ts);
   const miss = [];
   for (let tz = tz0; tz <= tz1; tz++) {
     for (let tx = tx0; tx <= tx1; tx++) {
@@ -389,23 +401,22 @@ function missingBiomeBox(tight) {
     return da - db;
   });
 
-  const maxBlocks = QUERY_CELLS * step;
   let x0 = miss[0].ox;
   let z0 = miss[0].oz;
-  let x1 = x0 + ts;
-  let z1 = z0 + ts;
+  let xx = x0 + ts;
+  let zz = z0 + ts;
   for (let i = 1; i < miss.length; i++) {
     const nx0 = Math.min(x0, miss[i].ox);
     const nz0 = Math.min(z0, miss[i].oz);
-    const nx1 = Math.max(x1, miss[i].ox + ts);
-    const nz1 = Math.max(z1, miss[i].oz + ts);
-    if (nx1 - nx0 > maxBlocks || nz1 - nz0 > maxBlocks) continue;
+    const nx1 = Math.max(xx, miss[i].ox + ts);
+    const nz1 = Math.max(zz, miss[i].oz + ts);
+    if (nx1 - nx0 > maxB || nz1 - nz0 > maxB) continue;
     x0 = nx0;
     z0 = nz0;
-    x1 = nx1;
-    z1 = nz1;
+    xx = nx1;
+    zz = nz1;
   }
-  return { ox: x0, oz: z0, bw: x1 - x0, bh: z1 - z0, step };
+  return { ox: x0, oz: z0, bw: xx - x0, bh: zz - z0, step };
 }
 
 function visibleBounds() {
@@ -523,7 +534,7 @@ function drawStructures() {
   const size = state.iconSize;
   hitList = [];
   const markers = state.structMarkers;
-  const maxDraw = state.drag ? 80 : state.viewW > 40000 ? 500 : 1200;
+  const maxDraw = state.viewW > 40000 ? 800 : 1600;
   let drawn = 0;
   for (let i = 0; i < markers.length; i++) {
     const marker = markers[i];
@@ -541,9 +552,7 @@ function drawStructures() {
     ctx.lineWidth = 1;
     ctx.fillRect(x - size / 2, y - size / 2, size, size);
     ctx.strokeRect(x - size / 2 + 0.5, y - size / 2 + 0.5, size - 1, size - 1);
-    if (!state.drag && state.viewW <= 22000 && img && (img.naturalWidth || img.width)) {
-      ctx.drawImage(img, x - size / 2 + 2, y - size / 2 + 2, size - 4, size - 4);
-    }
+    if (img) ctx.drawImage(img, x - size / 2 + 2, y - size / 2 + 2, size - 4, size - 4);
     hitList.push({ marker, x, y, size });
   }
 }
@@ -1304,7 +1313,9 @@ async function boot() {
       iconImgs[key] = baked;
       render();
     };
-    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(window.FEATURE_ICONS[key]);
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
+      window.FEATURE_ICONS[key].replace('<svg ', '<svg width="32" height="32" ')
+    );
   }
 
   const meta = await window.seedgrid.getMeta();
