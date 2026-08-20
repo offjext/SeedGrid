@@ -93,53 +93,12 @@ async function init() {
   parentPort.postMessage({ type: 'ready' });
 }
 
-function queryBiomes(p) {
-  ensureVersion(p.versionId);
-  const seedValue = parseSeed(p.seed);
-  const dim = Number(p.dimension || 0);
-  const y = biomeAreaY(Number(p.y ?? 64), dim);
-  const terrain = !!p.terrain;
-  const cell = dim === 1 ? 64 : dim === -1 ? 32 : 16;
-
-  const ox = Math.round(Number(p.ox));
-  const oz = Math.round(Number(p.oz));
-  const bw = Math.max(cell, Math.round(Number(p.bw)));
-  const bh = Math.max(cell, Math.round(Number(p.bh)));
-
-  doSetSeed(dim, seedValue);
-  currentSeedStr = p.seed;
-  currentDim = dim;
-
-  const x0 = Math.floor(ox / cell);
-  const z0 = Math.floor(oz / cell);
-  const sx = clampCells(Math.ceil(bw / cell));
-  const sz = clampCells(Math.ceil(bh / cell));
-  const worldOx = x0 * cell;
-  const worldOz = z0 * cell;
-  const worldBw = sx * cell;
-  const worldBh = sz * cell;
-
-  const biomePtr = m._get_biomes_area(x0, z0, sx, sz, y, 4);
-  if (!biomePtr) {
-    throw new Error('Biome area failed');
-  }
-
-  let heights = null;
-  if (terrain) {
-    const hPtr = m._get_height_area(x0, z0, sx, sz, 4);
-    if (hPtr) {
-      heights = new Float32Array(sx * sz);
-      for (let i = 0; i < sx * sz; i++) heights[i] = m.HEAPF32[(hPtr >> 2) + i];
-    }
-  }
-
-  const gw = sx;
-  const gh = sz;
+function paintBiomes(ids, gw, gh, heights) {
   const pixels = new Uint8ClampedArray(gw * gh * 4);
   for (let z = 0; z < gh; z++) {
     for (let x = 0; x < gw; x++) {
       const i = z * gw + x;
-      const bid = m.HEAP32[(biomePtr >> 2) + i];
+      const bid = ids[i];
       let [r, g, b] = biomeColor(bid);
       if (heights) {
         const h = heights[i];
@@ -165,11 +124,56 @@ function queryBiomes(p) {
       pixels[o + 3] = 255;
     }
   }
+  return pixels;
+}
 
+function queryBiomes(p) {
+  ensureVersion(p.versionId);
+  const seedValue = parseSeed(p.seed);
+  const dim = Number(p.dimension || 0);
+  const y = biomeAreaY(Number(p.y ?? 64), dim);
+  const terrain = !!p.terrain;
+  const cell = dim === 1 ? 64 : dim === -1 ? 32 : 16;
+
+  const ox = Math.round(Number(p.ox));
+  const oz = Math.round(Number(p.oz));
+  const bw = Math.max(cell, Math.round(Number(p.bw)));
+  const bh = Math.max(cell, Math.round(Number(p.bh)));
+
+  doSetSeed(dim, seedValue);
+  currentSeedStr = p.seed;
+  currentDim = dim;
+
+  const x0 = Math.floor(ox / cell);
+  const z0 = Math.floor(oz / cell);
+  const sx = clampCells(Math.ceil(bw / cell));
+  const sz = clampCells(Math.ceil(bh / cell));
+  const worldOx = x0 * cell;
+  const worldOz = z0 * cell;
+  const worldBw = sx * cell;
+  const worldBh = sz * cell;
+  const n = sx * sz;
+
+  const biomePtr = m._get_biomes_area(x0, z0, sx, sz, y, 4);
+  if (!biomePtr) throw new Error('Biome area failed');
+
+  const ids = new Int32Array(n);
+  for (let i = 0; i < n; i++) ids[i] = m.HEAP32[(biomePtr >> 2) + i];
+
+  let heights = null;
+  if (terrain && n <= 65536) {
+    const hPtr = m._get_height_area(x0, z0, sx, sz, 4);
+    if (hPtr) {
+      heights = new Float32Array(n);
+      for (let i = 0; i < n; i++) heights[i] = m.HEAPF32[(hPtr >> 2) + i];
+    }
+  }
+
+  const pixels = paintBiomes(ids, sx, sz, heights);
   return {
     pixels: Buffer.from(pixels.buffer, pixels.byteOffset, pixels.byteLength),
-    gw,
-    gh,
+    gw: sx,
+    gh: sz,
     ox: worldOx,
     oz: worldOz,
     bw: worldBw,
@@ -280,7 +284,7 @@ function queryStructures(p) {
         x, z,
         color: def.color
       };
-      if (def.key === 'village') {
+      if (def.key === 'village' && bw <= 12000) {
         const bid = villageBiomeId(x, z);
         marker.name = villageName(bid);
         marker.biomeName = biomeName(bid);
