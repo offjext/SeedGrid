@@ -44,7 +44,7 @@ const biomeTiles = new Map();
 const biomePending = new Set();
 const TILE_CELLS = 64;
 const TILE_LIMIT = 480;
-const QUERY_CELLS = 256;
+const QUERY_CELLS = 192;
 const BIOME_MAX_JOBS = 3;
 let popoverMarker = null;
 let popoverPx = 0;
@@ -302,10 +302,7 @@ function biomeWorldKey() {
 }
 
 function biomeStep() {
-  const cell = currentScale();
-  let step = cell;
-  while (state.viewW / step > QUERY_CELLS) step *= 2;
-  return step;
+  return currentScale();
 }
 
 function tileBlocks() {
@@ -451,11 +448,13 @@ function drawBiome() {
   if (state.features.biomes === false) return;
   ctx.imageSmoothingEnabled = false;
 
+  const step = currentScale();
   const prefix = biomeWorldKey() + '|';
   const visible = visibleBounds();
   const list = [];
   for (const [key, tile] of biomeTiles) {
     if (!key.startsWith(prefix)) continue;
+    if (tile.step && tile.step !== step) continue;
     if (tile.ox + tile.bw <= visible.ox || tile.oz + tile.bh <= visible.oz) continue;
     if (tile.ox >= visible.ox + visible.bw || tile.oz >= visible.oz + visible.bh) continue;
     list.push(tile);
